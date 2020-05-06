@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block header %}
+	<h1>Record Samples</h1>
+{% endblock %}
+
+{% block content %}
+	<h2>New Sample</h2>
+	<p>Here you can add a new sample to the database.</p>
+	<form action="{{ url_for('pages.home') }}" method="POST">
+		{% if people and categories %}
+			Person:
+			<br>
+			{% for person in people %}
+				<input type="radio" name="person" id="{{ person.id }}" value="{{ person.id }}" required>
+				<label for="{{ person.id }}">{{ person.name }}</label>
+				<br>
+			{% endfor %}
+			Category:
+			<select id="category" name="category">
+				<option value="none" selected>-- select --</option>
+				{% for category in categories %}
+					<option value="{{ category.id }}">{{ category.name }} ({{ category.genreName }})</option>
+				{% endfor %}
+			</select>
+			<br>
+			<input type="submit" value="Record sample">
+		{% else %}
+			<p>Make sure you have people, genres, and categories set up!</p>
+		{% endif %}
+		<h2>New Category</h2>
+		<form action="{{ url_for('pages.manage') }}" method="POST">
+			<input type="hidden" id="table" name="table" value="categories">
+			<input type="hidden" id="action" name="action" value="add">
+			Name:
+			<input type="text" id="name" name="name">
+			<br>
+			Genre:
+			<select id="genre" name="genre">
+				{% for genre in genres %}
+					<option value="{{ genre.id }}">{{ genre.name }}</option>
+				{% endfor %}
+			</select>
+			<br>
+			<input type="submit" value="Add new category">
+		</form>
+	</form>
+{% endblock %}

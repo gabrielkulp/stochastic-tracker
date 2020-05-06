@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Manage{% endblock %}
+
+{% block header %}
+	<h1>Manage Genres and Categories</h1>
+{% endblock %}
+
+{% block content %}
+	<p>Genres are broad areas of life you might want to track, like activities or moods over time.</p>
+	<p>Categories are the labels you can apply within a genre, such as sleeping or happiness.</p>
+	<p>Deleting a genre will delete all categories under it. Deleting a category will also delete all samples referencing it.</p>
+	<h2>Manage Categories</h2>
+	<form action="{{ url_for('pages.manage') }}" method="POST">
+		<input type="hidden" id="table" name="table" value="categories">
+		<input type="hidden" id="action" name="action" value="add">
+		Name:
+		<input type="text" id="name" name="name">
+		<br>
+		Genre:
+		<select id="genre" name="genre">
+			{% for genre in genres %}
+				<option value="{{ genre.id }}">{{ genre.name }}</option>
+			{% endfor %}
+		</select>
+		<br>
+		<input type="submit" value="Add new category">
+	</form>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Genre</th>
+			<th>Update</th>
+			<th>Delete</th>
+		</tr>
+		{% for cat in categories %}
+			<tr>
+				<form action="{{ url_for('pages.manage') }}" method="POST">
+					<input type="hidden" id="table" name="table" value="categories">
+					<input type="hidden" id="action" name="action" value="update">
+					<input type="hidden" id="id" name="id" value="{{ cat.id }}">
+					<td>
+						<input type="text" id="name" name="name" value="{{ cat.name }}">
+					</td>
+					<td>
+						<select id="genre" name="genre">
+							{% for genre in genres %}
+								<option value="{{ genre.id }}"
+									{% if genre.id == cat.genre %}selected{% endif %}>{{ genre.name }}
+								</option>
+							{% endfor %}
+						</select>
+					</td>
+					<td>
+						<input type="submit" value="Update">
+					</td>
+				</form>
+				<td>
+					<form action="{{ url_for('pages.manage') }}" method="POST">
+						<input type="hidden" id="table" name="table" value="categories">
+						<input type="hidden" id="action" name="action" value="delete">
+						<input type="hidden" id="id" name="id" value="{{ cat.id }}">
+						<input type="submit" value="Delete">
+					</form>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<h2>Manage Genres</h2>
+	<form action="{{ url_for('pages.manage') }}" method="POST">
+		<input type="hidden" id="table" name="table" value="genres">
+		<input type="hidden" id="action" name="action" value="add">
+		Name:
+		<input type="text" id="name" name="name">
+		<br>
+		<input type="submit" value="Add new genre">
+	</form>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Update</th>
+			<th>Delete</th>
+		</tr>
+		{% for genre in genres %}
+			<tr>
+				<form action="{{ url_for('pages.manage') }}" method="POST">
+					<input type="hidden" id="table" name="table" value="genres">
+					<input type="hidden" id="action" name="action" value="update">
+					<input type="hidden" id="id" name="id" value="{{ genre.id }}">
+					<td>
+						<input type="text" id="name" name="name" value="{{ genre.name }}">
+					</td>
+					<td>
+						<input type="submit" value="Update">
+					</td>
+				</form>
+				<td>
+					<form action="{{ url_for('pages.manage') }}" method="POST">
+						<input type="hidden" id="table" name="table" value="genres">
+						<input type="hidden" id="action" name="action" value="delete">
+						<input type="hidden" id="id" name="id" value="{{ genre.id }}">
+						<input type="submit" value="Delete">
+					</form>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<h2>Manage People</h2>
+	<form action="{{ url_for('pages.manage') }}" method="POST">
+		<input type="hidden" id="table" name="table" value="people">
+		<input type="hidden" id="action" name="action" value="add">
+		Name:
+		<input type="text" id="name" name="name">
+		<br>
+		<input type="submit" value="Add new person">
+	</form>
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Update</th>
+			<th>Delete</th>
+		</tr>
+		{% for person in people %}
+			<tr>
+				<form action="{{ url_for('pages.manage') }}" method="POST">
+					<input type="hidden" id="table" name="table" value="people">
+					<input type="hidden" id="action" name="action" value="update">
+					<input type="hidden" id="id" name="id" value="{{ person.id }}">
+					<td>
+						<input type="text" id="name" name="name" value="{{ person.name }}">
+					</td>
+					<td>
+						<input type="submit" value="Update">
+					</td>
+				</form>
+				<td>
+					<form action="{{ url_for('pages.manage') }}" method="POST">
+						<input type="hidden" id="table" name="table" value="people">
+						<input type="hidden" id="action" name="action" value="delete">
+						<input type="hidden" id="id" name="id" value="{{ person.id }}">
+						<input type="submit" value="Delete">
+					</form>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}

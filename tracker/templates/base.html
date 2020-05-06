@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% block title %}{% endblock %} - Stochastic Tracker</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>">
+	</head>
+	<body>
+		<header>
+			{% block header %}{% endblock %}
+			<hr>
+			<nav>
+				<h2>Navigation</h2>
+				<ul>
+					{% if url_for(request.endpoint) != url_for('pages.home') %}<li><a href="{{ url_for('pages.home') }}">Home</a></li>{% endif %}
+					{% if url_for(request.endpoint) != url_for('pages.reports') %}<li><a href="{{ url_for('pages.reports') }}">Reports</a></li>{% endif %}
+					{% if url_for(request.endpoint) != url_for('pages.manage') %}<li><a href="{{ url_for('pages.manage') }}">Manage</a></li>{% endif %}
+				</ul>
+			</nav>
+			<hr>
+		</header>
+		{% block content %}{% endblock %}
+	</body>
+</html>

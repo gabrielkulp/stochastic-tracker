@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block header %}
+	<h1>View Reports</h1>
+{% endblock %}
+
+{% block content %}
+	<p>Here you'll be able to view the aggregate info from all the samples.</p>
+	<table>
+		<tr>
+			<th>Person</th>
+			<th>Time</th>
+			<th>Genre</th>
+			<th>Category</th>
+		</tr>
+		{% for sample in samples %}
+			<tr>
+				<td>{{ sample.person }}</td>
+				<td>{{ sample.time }}</td>
+				<td>{{ sample.genreName }}</td>
+				<td>{{ sample.category }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
