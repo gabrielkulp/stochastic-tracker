@@ -7,7 +7,21 @@
 {% endblock %}
 
 {% block content %}
-	<p>Here you'll be able to view the aggregate info from all the samples.</p>
+	{% for report in reports %}
+		<h2>{{ report["genreName"] }}</h2>
+		{% for person in report["people"] %}
+			<p>{{ person["name"] }}</p>
+			<table>
+				{% for entry in person["histogram"] %}
+				<tr>
+					<td>{{ entry[0] }}</td>
+					<td>{{ entry[1] }}%</td>
+				</tr>
+				{% endfor %}
+			</table>
+		{% endfor %}
+	{% endfor %}
+	<p>Most recent samples</p>
 	<table>
 		<tr>
 			<th>Person</th>

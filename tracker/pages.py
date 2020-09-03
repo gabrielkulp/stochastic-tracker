@@ -118,7 +118,47 @@ def manage():
 @bp.route("/reports")
 def reports():
 	db = get_db()
+	people = db.execute("SELECT id, name FROM people").fetchall()
+	genres = db.execute("SELECT id, name FROM genres").fetchall()
+	categories = db.execute("SELECT c.id, c.name, g.name AS genreName FROM categories c JOIN genres g ON c.genre = g.id").fetchall()
 	samples = db.execute(
 		"SELECT p.name AS person, c.name AS category, g.name AS genreName, s.stamp AS time FROM samples AS s JOIN categories c ON c.id = s.category JOIN genres g ON g.id = c.genre JOIN people p ON p.id = s.person ORDER BY s.stamp DESC"
 	).fetchall()
-	return render_template("reports.html", samples=samples)
+
+	reports = []
+	for genre in genres:
+		perperson = []
+		gsamples = [s for s in samples if s["genreName"] == genre["name"]]
+		if len(gsamples) == 0:
+			continue
+		for person in people:
+			histogram = []
+			psamples = [s for s in gsamples if s["person"] == person["name"]]
+			if len(psamples) == 0:
+				continue
+			for category in categories:
+				csamples = [s for s in psamples if s["category"] == category["name"]]
+				if len(psamples) == 0 or len(csamples) == 0:
+					continue
+				histogram.append((category["name"], len(csamples)*100/len(psamples)))
+			if len(histogram) != 0:
+				perperson.append({"name": person["name"], "histogram": histogram})
+		if len(perperson) != 0:
+			reports.append({"genreName": genre["name"], "people": perperson})
+	
+	return render_template("reports.html", samples=samples[0:100], reports=reports)
+
+	# format for reports:
+	# reports [
+	#   {
+	#     genreName: "",
+	#     people: [
+	#	    {
+	#         name: "",
+	#         histogram: {
+	#           (category, percent)
+	#         }
+	#       }
+	#     ]
+	#   }
+	# ]
