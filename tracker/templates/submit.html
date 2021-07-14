@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block scripts %}
+	<script>var tags = {{ tagsJS|safe }};</script>
+	<script type="text/javascript" src="{{ url_for('static', filename='submit.js') }}" defer></script>
+{% endblock %}
+
+{% block header %}
+	<h1>Record Samples</h1>
+{% endblock %}
+
+{% block content %}
+	<h2>New Sample</h2>
+	<p>Here you can add a new ping to the database.</p>
+	{% if people and tags_tree %}
+		<form action="{{ url_for('pages.submit') }}" method="POST">
+			<h3>Person:</h3>
+			{% for person in people %}
+				<input type="radio" name="person" value={{ person.id }} required>
+				<label for="{{ person.id }}">{{ person.name }}</label>
+				<br>
+			{% endfor %}
+
+			<h3>Tags:</h3>
+			<ul id="glimpseList"></ul>
+			<button id="tagAdd">✚ add tag</button>
+			<br>
+
+			<h3>Time:</h3>
+			<input type="checkbox" id="nowCheckbox" checked="true" autocomplete="off">Now
+			<div style="display: none">
+				<input type="date" name="date" value="{{ localdate }}" autocomplete="off">
+				<input type="time" name="time" value="{{ localtime }}" autocomplete="off">
+			</div>
+			<br>
+
+			<input type="submit" value="Record ping">
+		</form>
+	{% else %}
+		<p>Database error!</p>
+	{% endif %}
+{% endblock %}

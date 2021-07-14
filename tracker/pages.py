@@ -3,6 +3,8 @@ from flask import (
 )
 import urllib.request, urllib.error
 import json
+import time
+from . import tags as T
 
 from werkzeug.exceptions import abort
 
@@ -10,28 +12,70 @@ from tracker.db import get_db
 
 bp = Blueprint('pages', __name__)
 
+
 @bp.route("/")
 def index():
-	return redirect(url_for("pages.home"), 303)
+	return redirect(url_for("pages.submit"), 303)
 
-
-@bp.route("/home", methods=["GET", "POST"])
-def home():
+@bp.route("/submit", methods=["GET", "POST"])
+def submit():
 	db = get_db()
 	if (request.method == "GET"):
 		people = db.execute("SELECT id, name FROM people").fetchall()
-		genres = db.execute("SELECT id, name FROM genres").fetchall()
-		categories = db.execute("SELECT c.id, c.name, g.name AS genreName FROM categories c JOIN genres g ON c.genre = g.id").fetchall()
-		return render_template("home.html", **locals())
-	
-	person = request.form.get("person")
-	category = request.form.get("category")
-	if (not person) or (not category):
+		db_res = db.execute("SELECT id, name, parent FROM tags ORDER BY id DESC").fetchall()
+		(tags_tree, tags_flat) = T.SQL_to_tags(db_res)
+		tagsJS = '[' + ", ".join([f"{g:js}" for g in tags_flat]) + ']'
+		lt = time.localtime()
+		localtime = f"{lt.tm_hour:02}:{lt.tm_min:02}"
+		# cspell: ignore mday
+		localdate = f"{lt.tm_year}-{lt.tm_mon:02}-{lt.tm_mday:02}"
+		return render_template("submit.html", **locals())
+
+	person = request.form.get("person", type=int)
+	glimpses = request.form.getlist("glimpses[]")
+	new_tags = request.form.getlist("newTags[]")
+	ping_date = request.form.get("date")
+	ping_time = request.form.get("time")
+	print(person, glimpses, new_tags, ping_date, ping_time)
+	if not (person and glimpses and new_tags and ping_date and ping_time):
 		abort(400) # client error: bad request
+
+	db_res = db.execute("SELECT id, name, parent FROM tags ORDER BY id DESC").fetchall()
+	(tags_tree, tags_flat) = T.SQL_to_tags(db_res)
 	
-	db.execute("INSERT INTO samples (person, category) VALUES (?, ?)", (person, category))
+	# add the ping TODO: parse timestamp
+	db.execute("INSERT INTO pings (person) VALUES (?)", (person,))
 	db.commit()
-	return redirect(url_for("pages.home"), 303)
+	ping_id = db.execute("SELECT id FROM pings ORDER BY id DESC").fetchone()["id"]
+	print("new ping added with ID", ping_id)
+
+	# process glimpses one-by-one
+	for (glimpse, new_tag) in zip(glimpses, new_tags):
+		# cspell: ignore isdecimal
+		if glimpse.isdecimal():
+			tag_id = tags_flat[int(glimpse)].ID
+			db.execute("INSERT INTO glimpses (ping, tag) VALUES (?, ?)", (ping_id, tag_id))
+		elif glimpse[3:].isdecimal():
+			# if it's not decimal, it's probably a new tag
+			parent_id = tags_flat[int(glimpse[3:])].ID
+			if new_tag:
+				db.execute("INSERT INTO tags (name, parent) VALUES (?, ?)", (new_tag, parent_id))
+			else:
+				# no empty tag names!
+				# TODO: rollback ping and other glimpses?
+				abort(400)
+			
+			# now we need the ID of that new tag so we can insert a glimpse with it
+			db.commit()
+			tag_id = db.execute("SELECT id FROM tags ORDER BY id DESC").fetchone()["id"]
+			db.execute("INSERT INTO glimpses (ping, tag) VALUES (?, ?)", (ping_id, tag_id))
+		else:
+			# invalid glimpse ID
+			# TODO: rollback ping and other glimpses?
+			abort(400)
+
+	db.commit()
+	return redirect(url_for("pages.submit"), 303)
 
 
 @bp.route("/manage", methods=["GET", "POST"])
@@ -39,7 +83,8 @@ def manage():
 	db = get_db()
 	if (request.method == "GET"):
 		people = db.execute("SELECT id, name FROM people").fetchall()
-		genres = db.execute("SELECT id, name FROM genres").fetchall()
+		db_res = db.execute("SELECT id, name, parent FROM tags ORDER BY id DESC").fetchall()
+		(tags_tree, tags_flat) = T.SQL_to_tags(db_res)
 		categories = db.execute("SELECT c.id, c.name, genre FROM categories c JOIN genres g ON c.genre = g.id").fetchall()
 		return render_template("manage.html", **locals())
 
@@ -115,8 +160,8 @@ def manage():
 	return redirect(request.path, 303)
 
 
-@bp.route("/reports")
-def reports():
+@bp.route("/stats")
+def stats():
 	db = get_db()
 	people = db.execute("SELECT id, name FROM people").fetchall()
 	genres = db.execute("SELECT id, name FROM genres").fetchall()

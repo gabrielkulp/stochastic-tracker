@@ -23,6 +23,5 @@ def create_app():
 
 	from . import pages
 	app.register_blueprint(pages.bp)
-	app.add_url_rule("/", endpoint="home")
-
+	#app.add_url_rule("/", endpoint="home")
 	return app
