@@ -34,6 +34,22 @@ flask init-db
 deactivate
 ```
 
+### In Docker
+
+Build the image with a command similar to this:
+
+```sh
+docker build --tag stochastic-tracker .
+```
+
+Run the image with a command similar to this:
+
+```sh
+docker run --rm --name tracker -p 80:8080 stochastic-tracker
+```
+
+You'll probably want to change at least the run command for production use (for example, to add database persistence). The database is located at `/app/instance/samples.sqlite`.
+
 ## Usage
 
 If you're using `virtualenv`, then first run `source venv/bin/activate`. Run `deactivate` or exit the shell to leave the virtual environment.
