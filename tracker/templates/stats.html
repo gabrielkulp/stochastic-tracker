@@ -7,35 +7,24 @@
 {% endblock %}
 
 {% block content %}
-	{% for report in reports %}
-		<h2>{{ report["genreName"] }}</h2>
-		{% for person in report["people"] %}
-			<p>{{ person["name"] }}</p>
-			<table>
-				{% for entry in person["histogram"] %}
-				<tr>
-					<td>{{ entry[0] }}</td>
-					<td>{{ entry[1] }}%</td>
-				</tr>
-				{% endfor %}
-			</table>
+	{% for person in namedReports %}
+		<h2>{{ person.name }}</h2>
+		{% for report in person.reports %}
+			{% if report.type == "Stats" %}
+				<h3>{{ report.value.name }}</h3>
+				Mean: {{ report.value.mean }}<br>
+				Standard deviation: {{ report.value.stdev }}	
+			{% elif report.type == "Histogram" %}
+				<h3>{{ report.value.name }}</h3>
+				<table>
+					{% for entry in report.value.entries %}
+						<tr>
+							<td>{{ entry.bucket }}</td>
+							<td>{{ entry.portion }}%</td>
+						</tr>
+					{% endfor %}
+				</table>
+			{% endif %}
 		{% endfor %}
 	{% endfor %}
-	<p>Most recent samples</p>
-	<table>
-		<tr>
-			<th>Person</th>
-			<th>Time</th>
-			<th>Genre</th>
-			<th>Category</th>
-		</tr>
-		{% for sample in samples %}
-			<tr>
-				<td>{{ sample.person }}</td>
-				<td>{{ sample.time }}</td>
-				<td>{{ sample.genreName }}</td>
-				<td>{{ sample.category }}</td>
-			</tr>
-		{% endfor %}
-	</table>
 {% endblock %}

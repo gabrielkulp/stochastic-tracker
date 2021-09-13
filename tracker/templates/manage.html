@@ -2,146 +2,117 @@
 
 {% block title %}Manage{% endblock %}
 
+{% block head %}
+	<script type="text/javascript" src="{{ url_for('static', filename='manage.js') }}" defer></script>
+{% endblock %}
+
 {% block header %}
-	<h1>Manage Genres and Categories</h1>
+	<h1>Manage Metrics and Tags</h1>
 {% endblock %}
 
 {% block content %}
-	<p>Genres are broad areas of life you might want to track, like activities or moods over time.</p>
-	<p>Categories are the labels you can apply within a genre, such as sleeping or happiness.</p>
-	<p>Deleting a genre will delete all categories under it. Deleting a category will also delete all samples referencing it.</p>
-	<h2>Manage Categories</h2>
-	<form action="{{ url_for('pages.manage') }}" method="POST">
-		<input type="hidden" id="table" name="table" value="categories">
-		<input type="hidden" id="action" name="action" value="add">
-		Name:
-		<input type="text" id="name" name="name">
-		<br>
-		Genre:
-		<select id="genre" name="genre">
-			{% for genre in genres %}
-				<option value="{{ genre.id }}">{{ genre.name }}</option>
+	<h2>Pings</h2>
+	<p>Just the {{ num_pings }} most recent</p>
+	<table>
+		<tr>
+			<th>Timestamp</th>
+			<th>Person</th>
+			<th>Metrics</th>
+			<th>Tags</th>
+			<th>Delete</th>
+		</tr>
+		{% for ping in pings %}
+		<tr>
+			<td class="utc-timestamp">{{ ping.timestamp }}</td>
+			<td>{{ ping.person }}</td>
+			<td>{{ ", ".join(ping.metrics) }}</td>
+			<td>{{ ", ".join(ping.tags) }}</td>
+			<td>
+				<form method="POST">
+					<input type="hidden" name="table" value="pings">
+					<input type="hidden" name="id" value="{{ ping.id }}">
+					<input type="submit" value="✖">
+				</form>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+	<h2>Tags</h2> {# cancel 🗑🛑⯃X❌✖ #} {# save 💾🖪🖫🖬 #} {# new +✚⮯⮟ #} {# edit ✎🖉🖊🖋⌨ #}
+	<p>Add, update, and delete tags. Deleting a tag will remove it from all previous pings (other tags on those pings will remain). Categories without any tags won't show up here, so don't delete all tags!</p>
+	{% for category in categories %}
+		<h3>	
+			<div class="editor">
+				<input type="button" value="✏️">
+				{{ category.name }}
+			</div>
+			<div>
+				<input type="button" value="🛑">
+				<form method="POST" style="display:inline-block">
+					<input type="text" name="table" value="categories" style="display: none" required>
+					<input type="text" name="action" value="update" style="display: none" required>
+					<input type="text" name="id" value="{{ category.id }}" style="display: none" required>
+					<input type="text" name="name" value="{{ category.name }}" autocomplete="off" required>
+					<input type="submit" value="💾">
+				</form>
+				{#<form method="POST" style="display:inline-block">
+					<input type="text" name="table" value="categories" style="display: none" required>
+					<input type="text" name="action" value="delete" style="display: none" required>
+					<input type="text" name="id" value="{{ category.id }}" style="display: none" required>
+					<input type="submit" value="✖">
+				</form>#}
+			</div>
+		</h3>
+		<ul>
+			{% for tag in category.tags %}
+				<li>
+					<div class="editor">
+						<input type="button" value="✏️">
+						{{ tag.name }}
+					</div>
+					<div>
+						<input type="button" value="🛑">
+						<form method="POST" style="display:inline-block">
+							<input type="text" name="table" value="tags" style="display: none" required>
+							<input type="text" name="action" value="update" style="display: none" required>
+							<input type="text" name="id" value="{{ tag.id }}" style="display: none" required>
+							<input type="text" name="name" value="{{ tag.name }}" autocomplete="off" required>
+							<input type="submit" value="💾">
+						</form>
+						<form method="POST" style="display:inline-block">
+							<input type="text" name="table" value="tags" style="display: none" required>
+							<input type="text" name="action" value="delete" style="display: none" required>
+							<input type="text" name="id" value="{{ tag.id }}" style="display: none" required>
+							<input type="submit" value="✖">
+						</form>
+					</div>
+				</li>
 			{% endfor %}
-		</select>
-		<br>
-		<input type="submit" value="Add new category">
-	</form>
-	<table>
-		<tr>
-			<th>Name</th>
-			<th>Genre</th>
-			<th>Update</th>
-			<th>Delete</th>
-		</tr>
-		{% for cat in categories %}
-			<tr>
-				<form action="{{ url_for('pages.manage') }}" method="POST">
-					<input type="hidden" id="table" name="table" value="categories">
-					<input type="hidden" id="action" name="action" value="update">
-					<input type="hidden" id="id" name="id" value="{{ cat.id }}">
-					<td>
-						<input type="text" id="name" name="name" value="{{ cat.name }}">
-					</td>
-					<td>
-						<select id="genre" name="genre">
-							{% for genre in genres %}
-								<option value="{{ genre.id }}"
-									{% if genre.id == cat.genre %}selected{% endif %}>{{ genre.name }}
-								</option>
-							{% endfor %}
-						</select>
-					</td>
-					<td>
-						<input type="submit" value="Update">
-					</td>
+			<li>
+				<form method="POST" style="display:inline-block">
+					<div class="editor">
+						<input type="button" value="✏️">
+						<em>[new tag]</em>
+					</div>
+					<div>
+						<input type="button" value="🛑">
+						<input type="text" name="table" value="tags" style="display: none" required>
+						<input type="text" name="action" value="create" style="display: none" required>
+						<input type="text" name="id" value="{{ category.id }}" style="display: none" required>
+						<input type="text" name="name" autocomplete="off" required>
+						<input type="submit" value="💾">
+					</div>
 				</form>
-				<td>
-					<form action="{{ url_for('pages.manage') }}" method="POST">
-						<input type="hidden" id="table" name="table" value="categories">
-						<input type="hidden" id="action" name="action" value="delete">
-						<input type="hidden" id="id" name="id" value="{{ cat.id }}">
-						<input type="submit" value="Delete">
-					</form>
-				</td>
-			</tr>
-		{% endfor %}
-	</table>
-	<h2>Manage Genres</h2>
-	<form action="{{ url_for('pages.manage') }}" method="POST">
-		<input type="hidden" id="table" name="table" value="genres">
-		<input type="hidden" id="action" name="action" value="add">
-		Name:
-		<input type="text" id="name" name="name">
-		<br>
-		<input type="submit" value="Add new genre">
-	</form>
-	<table>
-		<tr>
-			<th>Name</th>
-			<th>Update</th>
-			<th>Delete</th>
-		</tr>
-		{% for genre in genres %}
-			<tr>
-				<form action="{{ url_for('pages.manage') }}" method="POST">
-					<input type="hidden" id="table" name="table" value="genres">
-					<input type="hidden" id="action" name="action" value="update">
-					<input type="hidden" id="id" name="id" value="{{ genre.id }}">
-					<td>
-						<input type="text" id="name" name="name" value="{{ genre.name }}">
-					</td>
-					<td>
-						<input type="submit" value="Update">
-					</td>
-				</form>
-				<td>
-					<form action="{{ url_for('pages.manage') }}" method="POST">
-						<input type="hidden" id="table" name="table" value="genres">
-						<input type="hidden" id="action" name="action" value="delete">
-						<input type="hidden" id="id" name="id" value="{{ genre.id }}">
-						<input type="submit" value="Delete">
-					</form>
-				</td>
-			</tr>
-		{% endfor %}
-	</table>
-	<h2>Manage People</h2>
-	<form action="{{ url_for('pages.manage') }}" method="POST">
-		<input type="hidden" id="table" name="table" value="people">
-		<input type="hidden" id="action" name="action" value="add">
-		Name:
-		<input type="text" id="name" name="name">
-		<br>
-		<input type="submit" value="Add new person">
-	</form>
-	<table>
-		<tr>
-			<th>Name</th>
-			<th>Update</th>
-			<th>Delete</th>
-		</tr>
-		{% for person in people %}
-			<tr>
-				<form action="{{ url_for('pages.manage') }}" method="POST">
-					<input type="hidden" id="table" name="table" value="people">
-					<input type="hidden" id="action" name="action" value="update">
-					<input type="hidden" id="id" name="id" value="{{ person.id }}">
-					<td>
-						<input type="text" id="name" name="name" value="{{ person.name }}">
-					</td>
-					<td>
-						<input type="submit" value="Update">
-					</td>
-				</form>
-				<td>
-					<form action="{{ url_for('pages.manage') }}" method="POST">
-						<input type="hidden" id="table" name="table" value="people">
-						<input type="hidden" id="action" name="action" value="delete">
-						<input type="hidden" id="id" name="id" value="{{ person.id }}">
-						<input type="submit" value="Delete">
-					</form>
-				</td>
-			</tr>
-		{% endfor %}
-	</table>
+			</li>
+		</ul>
+	{% endfor %}
+	{#<h3>
+		<form method="POST" style="display:inline-block">
+			New category:
+			<input type="text" name="table" value="categories" style="display: none" required>
+			<input type="text" name="action" value="create" style="display: none" required>
+			<input type="text" name="id" value="0" style="display: none" required>
+			<input type="text" name="name" autocomplete="off" required>
+			<input type="submit" value="💾">
+		</form>
+	</h3>#}
 {% endblock %}
