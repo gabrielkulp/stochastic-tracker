@@ -48,7 +48,7 @@ Run the image with a command similar to this:
 docker run --rm --name tracker -p 80:8080 stochastic-tracker
 ```
 
-You'll probably want to change at least the run command for production use (for example, to add database persistence). The database is located at `/app/instance/samples.sqlite`. You should probably also set the environment variables `AUTH_USERNAME` and `AUTH_PASSWORD`.
+You'll probably want to change at least the run command for production use (for example, to add database persistence). The database is located at `/app/instance/samples.sqlite`. You should probably also set the environment variable `AUTH_TOKEN`.
 
 ## Usage
 

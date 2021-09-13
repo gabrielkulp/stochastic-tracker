@@ -1,5 +1,5 @@
 from flask import (
-	Blueprint, flash, g, redirect, render_template, request, url_for, abort
+	Blueprint, flash, g, redirect, render_template, request, url_for, abort, current_app
 )
 import urllib.request, urllib.error
 import json
@@ -14,6 +14,12 @@ from tracker.db import get_db
 
 bp = Blueprint('pages', __name__)
 
+@bp.before_request
+def authenticate():
+	if request.args.get('token') != current_app.config["AUTH_TOKEN"]:
+		abort(401)
+
+
 def getTaxonomy(db):
 	db_res = db.execute("SELECT id, name, minimum, maximum FROM metrics").fetchall()
 	metrics = [M.Metric(m) for m in db_res]
@@ -25,9 +31,10 @@ def getTaxonomy(db):
 
 	return metrics, categories
 
+
 @bp.route("/")
 def index():
-	return redirect(url_for("pages.submit"), 303)
+	return redirect(url_for("pages.submit", token=current_app.config["AUTH_TOKEN"]), 303)
 
 
 @bp.route("/submit", methods=["GET", "POST"])
@@ -104,7 +111,7 @@ def submit():
 	print("added glimpse tags")
 
 	db.commit()
-	return redirect(url_for("pages.submit"), 303)
+	return redirect(url_for("pages.submit", token=current_app.config["AUTH_TOKEN"]), 303)
 
 
 @bp.route("/manage", methods=["GET", "POST"])

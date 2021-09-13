@@ -14,9 +14,9 @@
 			<nav>
 				<h2>Navigation</h2>
 				<ul>
-					{% if url_for(request.endpoint) != url_for('pages.submit') %}<li><a href="{{ url_for('pages.submit') }}">Submit</a></li>{% endif %}
-					{% if url_for(request.endpoint) != url_for('pages.stats')  %}<li><a href="{{ url_for('pages.stats')  }}">Reports</a></li>{% endif %}
-					{% if url_for(request.endpoint) != url_for('pages.manage') %}<li><a href="{{ url_for('pages.manage') }}">Manage</a></li>{% endif %}
+					{% if url_for(request.endpoint) != url_for('pages.submit') %}<li><a href="{{ url_for('pages.submit', token=config['AUTH_TOKEN']) }}">Submit</a></li>{% endif %}
+					{% if url_for(request.endpoint) != url_for('pages.stats')  %}<li><a href="{{ url_for('pages.stats', token=config['AUTH_TOKEN'])  }}">Reports</a></li>{% endif %}
+					{% if url_for(request.endpoint) != url_for('pages.manage') %}<li><a href="{{ url_for('pages.manage', token=config['AUTH_TOKEN']) }}">Manage</a></li>{% endif %}
 				</ul>
 			</nav>
 			<hr>
