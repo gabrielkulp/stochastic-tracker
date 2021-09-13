@@ -8,7 +8,7 @@ ENV VIRTUAL_ENV=/app/venv
 RUN [ "/usr/local/bin/python", "-m", "venv", "$VIRTUAL_ENV"]
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN pip install flask waitress
+RUN pip install flask flask_basicauth waitress
 ENV FLASK_APP=tracker
 RUN flask init-db
 

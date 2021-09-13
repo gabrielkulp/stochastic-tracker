@@ -8,7 +8,9 @@ def create_app():
 	
 	app.config.from_mapping(
 		SECRET_KEY="dev",
-		DATABASE=os.path.join(app.instance_path, "samples.sqlite")
+		DATABASE=os.path.join(app.instance_path, "samples.sqlite"),
+		BASIC_AUTH_USERNAME=os.environ.get("AUTH_USERNAME"),
+		BASIC_AUTH_PASSWORD=os.environ.get("AUTH_PASSWORD")
 	)
 
 	app.config.from_pyfile("config.py", silent=True)
@@ -24,4 +26,9 @@ def create_app():
 	from . import pages
 	app.register_blueprint(pages.bp)
 	#app.add_url_rule("/", endpoint="home")
+
+	from flask_basicauth import BasicAuth
+	basic_auth = BasicAuth(app)
+	if app.config["BASIC_AUTH_USERNAME"] and app.config["BASIC_AUTH_PASSWORD"]:
+		app.config["BASIC_AUTH_FORCE"] = True
 	return app
