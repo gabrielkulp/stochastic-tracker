@@ -207,6 +207,8 @@ def stats():
 		for metric in metrics:
 			values = db.execute("SELECT gm.val FROM glimpse_metrics gm JOIN pings p ON gm.ping = p.id WHERE p.person = ? AND gm.metric = ?", (person["id"], metric.id)).fetchall()
 			values = [val["val"] for val in values]
+			if len(values) < 2:
+				continue
 			mean = round(statistics.mean(values), 2)
 			stdev = round(statistics.stdev(values), 2)
 			reports.append(Report("Stats", Stats(metric.name, mean, stdev)))
@@ -215,6 +217,8 @@ def stats():
 		for category in categories:
 			tags = db.execute("SELECT gt.tag FROM glimpse_tags gt JOIN pings p ON gt.ping = p.id JOIN tags t ON gt.tag = t.id WHERE p.person = ? AND t.parent = ?", (person["id"], category.id)).fetchall()
 			tags = [tag["tag"] for tag in tags]
+			if not len(tags):
+				continue
 			buckets = []
 			for tag in category.tags:
 				prevalence = tags.count(tag.id)/len(tags)
