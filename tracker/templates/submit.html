@@ -27,8 +27,9 @@
 
 			<h3>Metrics:</h3>
 			{% for metric in metrics %}
+				(ignore: <input type="checkbox" name="met_ignore_{{ metric.id }}" autocomplete="off">)
 				<label>
-					<input type="range" min="{{ metric.min }}" max="{{ metric.max }}" step="{{ (metric.max - metric.min)/10 }}" value="{{ (metric.max + metric.min)/2 }}" name="met_{{ metric.id }}" autocomplete="off" required>
+					<input type="range" min="{{ metric.min }}" max="{{ metric.max }}" step="{{ (metric.max - metric.min)/10 }}" value="{{ (metric.max + metric.min)/2 }}" name="met_{{ metric.id }}" autocomplete="off">
 					{{ metric.name }}
 				</label>
 				<br>

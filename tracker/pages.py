@@ -101,11 +101,13 @@ def submit():
 		res_tags.append(new_tag_id)
 		print("new tag added with id", new_tag_id, "and name", tag_name)
 
-	# process glimpses one-by-one
+	# process metrics one-by-one
 	for val_id, value in res_metrics:
-		db.execute("INSERT INTO glimpse_metrics (ping, metric, val) VALUES (?, ?, ?)", (ping_id, val_id, value))
+		if not request.form.get(f"met_ignore_{val_id}") == "on":
+			db.execute("INSERT INTO glimpse_metrics (ping, metric, val) VALUES (?, ?, ?)", (ping_id, val_id, value))
 	print("added glimpse metrics")
-	
+
+	# process tags one-by-one
 	for tag_id in res_tags:
 		db.execute("INSERT INTO glimpse_tags (ping, tag) VALUES (?, ?)", (ping_id, tag_id))
 	print("added glimpse tags")
