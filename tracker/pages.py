@@ -141,7 +141,7 @@ def manage():
 	if table == "pings":
 		db.execute("DELETE FROM pings WHERE id = ?", (id,))
 		db.commit()
-		return redirect(request.path, 303)
+		return redirect(url_for("pages.manage", token=current_app.config["AUTH_TOKEN"]), 303)
 	
 	action = request.form.get("action")
 	if action not in ["create", "update", "delete"]:
@@ -163,7 +163,7 @@ def manage():
 				abort(400)
 			db.execute("INSERT INTO categories (name) VALUES (?)", (name,))
 		db.commit()
-		return redirect(request.path, 303)
+		return redirect(url_for("pages.manage", token=current_app.config["AUTH_TOKEN"]), 303)
 
 	if table == "tags":
 		if action == "delete":
@@ -178,7 +178,7 @@ def manage():
 		elif action == "create":
 			db.execute("INSERT INTO tags (name, parent) VALUES (?, ?)", (name, id))
 		db.commit()
-		return redirect(request.path, 303)
+		return redirect(url_for("pages.manage", token=current_app.config["AUTH_TOKEN"]), 303)
 
 	# if nothing has matched so far, something is wrong
 	abort(400)
